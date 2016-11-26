@@ -58,14 +58,6 @@ def main():
                 edges = cv2.Canny(gray,100,25)
                 im2, contours, h = cv2.findContours(edges,1,2)
                 
-                
-                #cv2.line(image, (320-3*cube_sz, 240-cube_sz), (320+3*cube_sz, 240-cube_sz), (255, 255, 0))
-                #cv2.line(image, (320-3*cube_sz, 240+cube_sz), (320+3*cube_sz, 240+cube_sz), (255, 255, 0))
-                #cv2.line(image, (320-cube_sz, 240-3*cube_sz), (320-cube_sz, 240+3*cube_sz), (255, 255, 0))
-                #cv2.line(image, (320+cube_sz, 240-3*cube_sz), (320+cube_sz, 240+3*cube_sz), (255, 255, 0))
-
-                #mask[y:y+h,x:x+w] = 255
-                totalmask = np.zeros(raw.shape[:2], np.uint8)
                 #test += 1
                 #for row in xrange(1,2):
                 #       for col in xrange(1,2):
@@ -77,7 +69,6 @@ def main():
                                 #Create mask to only look at this cubie
                                 mask = np.zeros(raw.shape[:2], np.uint8)
                                 mask[240+(cube_sz/2)*(col*4-5):240+(cube_sz/2)*(col*4-3),320+(cube_sz/2)*(row*4-5):320+(cube_sz/2)*(row*4-3)] = 255
-                                totalmask = cv2.bitwise_or(totalmask, mask)
                                 #Find the means and run the numbers
                                 hsv_mean = cv2.mean(cv2.cvtColor(raw, cv2.COLOR_BGR2HSV), mask)
                                 bgr_mean = cv2.mean(raw, mask)
@@ -85,9 +76,7 @@ def main():
                                 if(c != 'N'): side[row][col] = c
                                 if(side[row][col] != 'N'):
                                         cv2.putText(image, side[row][col], text_corner, cv2.FONT_HERSHEY_SIMPLEX, 1, 255)
-                                if(test%3 == 0): print hsv_mean,; print bgr_mean
-                                        
-                #cv2.imshow("Mask", cv2.bitwise_and(raw, raw, mask=totalmask))
+                                #if(test%3 == 0): print hsv_mean,; print bgr_mean
                                         
                 try:
                         stdin = sys.stdin.read()
@@ -123,50 +112,6 @@ def main():
                 except IOError:
                         pass
                         
-        ##        for cnt in contours:
-        ##            approx = cv2.approxPolyDP(cnt,0.01*cv2.arcLength(cnt,True),True)
-        ##            #print len(approx)
-        ##            if len(approx)==5: continue
-        ##                #print "pentagon"
-        ##                  #-1 means contours are filled. should use 1 for me
-        ##                #cv2.drawContours(image,[cnt],0,255,-1)
-        ##            elif len(approx)==3: continue
-        ##                #print "triangle"
-        ##                #cv2.drawContours(image,[cnt],0,(0,255,0),-1)
-        ##            elif len(approx)==4:
-        ##                #print "square"
-        ##                cv2.drawContours(image,[cnt],0,(0,0,255),3)
-        ##            elif len(approx) == 9: continue
-        ##                #print "half-circle"
-        ##                #cv2.drawContours(image,[cnt],0,(255,255,0),-1)
-        ##            elif len(approx) > 15: continue
-        ##                #print "circle"
-        ##                #cv2.drawContours(image,[cnt],0,(0,255,255),-1)
-                
-        ##        hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-        ##        vals = [[np.array([50,100,100]), np.array([70,255,255])],
-        ##                [np.array([110, 50, 50]), np.array([130, 255, 255])]]
-        ##        height, width, channels = image.shape
-        ##        res = np.zeros((height, width, 3), np.uint8)
-        ##        res[:,:] = (255, 255, 255)
-        ##        whiteimg = res
-        ##        for x in xrange(0, 1):#len(vals)): 
-        ##                shapeMask = cv2.inRange(hsv, vals[x][0], vals[x][1])
-        ##                res = cv2.bitwise_and(res, whiteimg, mask=shapeMask)
-        ##
-        ##        greenMask = cv2.inRange(hsv, vals[0][0], vals[0][1])
-        ##        blueMask = cv2.inRange(hsv, vals[1][0], vals[1][1])
-        ##        gbMask = cv2.bitwise_or(greenMask, blueMask)
-        ##        res = cv2.bitwise_and(image, image, mask=gbMask)
-                
-                
-
-                #plt.subplot(121), plt.imshow(image,cmap = 'gray')
-                #plt.title('Original Image'), plt.xticks([]), plt.yticks([])
-                #plt.subplot(122), plt.imshow(edges,cmap = 'gray')
-                #plt.title('Edge Image'), plt.xticks([]), plt.yticks([])
-
-                #plt.show()
                 
                 # show the frame
                 cv2.imshow("Frame", image)
