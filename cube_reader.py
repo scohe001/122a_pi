@@ -29,7 +29,7 @@ def getColor(hsv_mean, bgr_mean):
                 return "B"
         return "N"
 
-def main():
+def get_cube():
         # initialize the camera and grab a reference to the raw camera capture
         camera = PiCamera()
         camera.resolution = (640, 480)
@@ -124,11 +124,46 @@ def main():
                 if key == ord("q"):
                         break
 
+def convert_sol(solution):
+        sides = ["L", "F", "R", "B"]
+
+        loaded = ["L", "F", "R", "B"]
+        unloaded = ["U", "D"]
+        final_sol = []
+
+        for x in xrange(0, len(solution)):
+                if solution[x][0] not in loaded: #If we're not loaded...
+                        best = 0
+                        #Figure out the most optimal way to flip
+                        for y in xrange(x + 1, len(solution)):
+                                if(solution[y][0] in unloaded): continue
+                                if(solution[y][0] in [loaded[0], loaded[2]]): break
+                                best = 1; break #it's either loaded 1 or loaded 3
+                        if best is 0:
+                                final_sol.append("LR")
+                                loaded[1], unloaded[1] = unloaded[1], loaded[1]
+                                loaded[3], unloaded[0] = unloaded[0], loaded[3]
+                        else:
+                                final_sol.append("BF")
+                                loaded[0], unloaded[1] = unloaded[1], loaded[0]
+                                loaded[2], unloaded[0] = unloaded[0], loaded[2]
+                                
+                        unloaded[0], unloaded[1] = unloaded[1], unloaded[0]
+                        #print final_sol[len(final_sol)-1] + " ",
+                                
+                #We're loaded now, so throw stuff in
+                final_sol.append(sides[loaded.index(solution[x][0])] + ("" if len(solution[x]) is 1 else solution[x][1]))
+                #print loaded,; print " ",
+                #print unloaded
+                #print final_sol[len(final_sol)-1]
+        return final_sol
+
+
 fl = fcntl.fcntl(sys.stdin.fileno(), fcntl.F_GETFL)
 fcntl.fcntl(sys.stdin.fileno(), fcntl.F_SETFL, fl | os.O_NONBLOCK)
 print "Press enter to lock in a side of the cube!"
-cube_state = main()
-cube_string = ""
+cube_state = get_cube()
+cube_str = ""
 cube_dict = {'G':'F', 'R':'R', 'O':'L', 'B':'B', 'W':'U', 'Y':'D'}
 #                      0 1 2 3 4 5
 #Read in in the order: F R B L U D
@@ -137,11 +172,34 @@ face_order = [4, 1, 0, 5, 3, 2] #order Korciemba requires our faces
 for face in face_order:
         for row in xrange(0, 3):
                 for col in xrange(0, 3):
-                        cube_string = cube_string + cube_dict[cube_state[face][col][row]]
+                        cube_str = cube_str + cube_dict[cube_state[face][col][row]]
 
-print cube_string
+print cube_str
 
-print kociemba.solve(cube_string)
+#cube_str = "BDUBUFFFDLDFURDBFURRFBFLBLDDFLDDULURUUDRLLFBRRLLRBBBRU"
+
+solution = kociemba.solve(cube_str)
+print solution
+solution = solution.split()
+#print solution
+
+#LR is right clockwise, LR' is left clockwise (right counter)
+#BF is front clockwise, BF' is back clockwise (front counter)
+moves = ["R", "R'", "R2", "L", "L'", "L2", "F", "F'", "F2", "B", "B'", "B2", "LR", "LR'", "BF", "BF'"]
+final_sol = convert_sol(solution)             
+print                
+for x in  final_sol:
+        print x + " ",
+print
+print len(solution)
+print len(final_sol)
+
+#TODO: loop through final_sol and send the corresponding index in moves
+#TODO: over SPI to the Atmega1284. Call the c program?
+
+#print moves.index(solution[1])
+        
+        
 
 #For testing to split and send the kociemba string
 #Another test string: ULRRUBDLFLDFRRULUURFUFFUDLBLBDFDBULFBDBRLDBRFDURFBBRDL
