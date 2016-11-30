@@ -11,6 +11,7 @@ import os
 import fcntl
 from copy import deepcopy
 import kociemba
+import subprocess
 
 #TODO setup these guys for the Chung labs
 def getColor(hsv_mean, bgr_mean):
@@ -193,6 +194,10 @@ for x in  final_sol:
 print
 print len(solution)
 print len(final_sol)
+
+popen = subprocess.Popen(("/home/pi/Desktop/a.out", "5"), stdout=subprocess.PIPE)
+popen.wait()
+output = popen.stdout.read()
 
 #TODO: loop through final_sol and send the corresponding index in moves
 #TODO: over SPI to the Atmega1284. Call the c program?
